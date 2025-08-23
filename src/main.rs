@@ -6,8 +6,8 @@ use rand::Rng;
 use std::cmp::{max, min};
 use std::time::{Duration, Instant};
 
-const X_SIZE: usize = 35;
-const Y_SIZE: usize = 25;
+const X_SIZE: usize = 40;
+const Y_SIZE: usize = 30;
 
 #[derive(Clone, Copy, Debug)]
 struct Cell {
@@ -215,33 +215,49 @@ impl App {
 
     fn draw_grid(&mut self, ui: &mut egui::Ui) {
         // Draw as a grid of clickable squares
-        let sz = 15.0; // pixel size of each cell
-        let spacing = 1.0;
+        let cell_size = 15.0; // pixel size of each cell
+        let border = 1.0;
+        let full_size = cell_size + 2.0 * border;
+
+        // Reserve the whole grid rect
+        let desired_size = egui::vec2(full_size * X_SIZE as f32, full_size * Y_SIZE as f32);
+        let (rect, _response) = ui.allocate_exact_size(desired_size, egui::Sense::hover());
+
+        let painter = ui.painter_at(rect);
+
         for y in 0..Y_SIZE {
-            ui.horizontal(|ui| {
-                for x in 0..X_SIZE {
-                    let idx = Self::idx(x, y);
-                    let cell = self.grid[idx];
-                    let mut color = if cell.vaccinated {
-                        self.color_vax
-                    } else {
-                        self.color_unvax
-                    };
-                    if cell.infected {
-                        color = self.color_infected;
-                    }
+            for x in 0..X_SIZE {
+                let idx = Self::idx(x, y);
+                let cell = self.grid[idx];
 
-                    let (rect, response) =
-                        ui.allocate_exact_size(egui::vec2(sz, sz), egui::Sense::click());
-                    ui.painter().rect_filled(rect, 2.0, color);
-
-                    if response.clicked() {
-                        // Clicking a cell starts the recursion (infection spread)
-                        self.try_infect(x, y);
-                    }
+                // Cell color
+                let mut fill_color = if cell.vaccinated {
+                    self.color_vax
+                } else {
+                    self.color_unvax
+                };
+                if cell.infected {
+                    fill_color = self.color_infected;
                 }
-            });
-            ui.add_space(spacing);
+
+                // Compute rect for this cell
+                let min = rect.min + egui::vec2(x as f32 * full_size, y as f32 * full_size);
+                let max = min + egui::vec2(full_size, full_size);
+                let r = egui::Rect::from_min_max(min, max);
+
+                // Fill inside with margin = border
+                let inner = r.shrink(border);
+                painter.rect_filled(inner, 0.0, fill_color);
+
+                // Stroke border
+                painter.rect_stroke(r, 0.0, (border, Color32::BLACK), egui::StrokeKind::Inside);
+
+                // Make the cell clickable
+                let response = ui.interact(r, egui::Id::new((x, y)), egui::Sense::click());
+                if response.clicked() {
+                    self.try_infect(x, y);
+                }
+            }
         }
     }
 }
