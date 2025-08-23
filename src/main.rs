@@ -245,15 +245,25 @@ impl App {
                 let max = min + egui::vec2(full_size, full_size);
                 let r = egui::Rect::from_min_max(min, max);
 
-                // Fill inside with margin = border
+                // Inner rect (inside border)
                 let inner = r.shrink(border);
+
+                // Interaction region
+                let id = egui::Id::new((x, y));
+                let response = ui.interact(r, id, egui::Sense::click_and_drag());
+
+                // Fill cell
                 painter.rect_filled(inner, 0.0, fill_color);
 
-                // Stroke border
+                // Hover overaly (semi-transparent white on top of the inner rect)
+                if response.hovered() {
+                    painter.rect_filled(inner, 0.0, Color32::from_white_alpha(40));
+                }
+
+                // Stroke border (always on top)
                 painter.rect_stroke(r, 0.0, (border, Color32::BLACK), egui::StrokeKind::Inside);
 
-                // Make the cell clickable
-                let response = ui.interact(r, egui::Id::new((x, y)), egui::Sense::click());
+                // Infect if clicked
                 if response.clicked() {
                     self.try_infect(x, y);
                 }
@@ -324,7 +334,7 @@ fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Herd Immunity Simulator")
-            .with_inner_size([1155.0, 590.0])
+            .with_inner_size([1035.0, 550.0])
             .with_min_inner_size([800.0, 400.0]),
         ..Default::default()
     };
