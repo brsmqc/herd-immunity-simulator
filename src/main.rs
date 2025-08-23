@@ -6,8 +6,8 @@ use rand::Rng;
 use std::cmp::{max, min};
 use std::time::{Duration, Instant};
 
-const X_SIZE: usize = 40;
-const Y_SIZE: usize = 30;
+const X_SIZE: usize = 37;
+const Y_SIZE: usize = 33;
 
 #[derive(Clone, Copy, Debug)]
 struct Cell {
@@ -17,23 +17,23 @@ struct Cell {
 
 #[derive(Clone, Copy, Debug)]
 struct Params {
-    vac_left: f32,  // 0..1
-    vac_right: f32, // 0..1
+    vac_left: i32,  // 0..100
+    vac_right: i32, // 0..100
     right_same: bool,
-    inf_rate_nonvac: f32, // 0..1
-    inf_rate_vac: f32,    // 0..1
-    inf_speed: f32,       // 0.1..5+ (multiplier)
+    inf_rate_nonvac: i32, // 0..100
+    inf_rate_vac: i32,    // 0..100
+    inf_speed: f32,       // 0.1..10+ (multiplier)
 }
 
 impl Default for Params {
     fn default() -> Self {
         Self {
-            vac_left: 0.8,
-            vac_right: 0.8,
+            vac_left: 50,
+            vac_right: 50,
             right_same: true,
-            inf_rate_nonvac: 0.9,
-            inf_rate_vac: 0.1,
-            inf_speed: 10.0,
+            inf_rate_nonvac: 90,
+            inf_rate_vac: 10,
+            inf_speed: 5.0,
         }
     }
 }
@@ -85,11 +85,11 @@ impl App {
     fn populate(&mut self) {
         self.scheduled.clear();
         let mut rng = rand::rng();
-        let vac_left = self.params.vac_left as f64;
+        let vac_left = self.params.vac_left as f64 / 100.0;
         let vac_right = if self.params.right_same {
-            self.params.vac_left as f64
+            self.params.vac_left as f64 / 100.0
         } else {
-            self.params.vac_right as f64
+            self.params.vac_right as f64 / 100.0
         };
 
         self.total_vaccinated = 0;
@@ -185,9 +185,9 @@ impl App {
                     continue;
                 }
                 let chance = if self.grid[ii].vaccinated {
-                    self.params.inf_rate_vac
+                    self.params.inf_rate_vac as f64 / 100.0
                 } else {
-                    self.params.inf_rate_nonvac
+                    self.params.inf_rate_nonvac as f64 / 100.0
                 } as f64;
                 if rng.random::<f64>() < chance {
                     let base_ms: f32 = 500.0 + 5000.0 * rng.random::<f32>();
@@ -274,6 +274,15 @@ impl App {
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // Set custom visuals
+        let mut style = (*ctx.style()).clone();
+
+        // Text color
+        style.visuals.override_text_color = Some(Color32::BLACK);
+
+        ctx.set_style(style);
+        //ctx.set_visuals(egui::Visuals::dark());
+
         // progress scheduled infections
         self.update_scheduled();
 
@@ -282,29 +291,31 @@ impl eframe::App for App {
         });
 
         egui::SidePanel::left("controls").resizable(false).show(ctx, |ui| {
+            ui.style_mut().text_styles.get_mut(&egui::TextStyle::Body).unwrap().size = 17.0;
+            ui.style_mut().text_styles.get_mut(&egui::TextStyle::Button).unwrap().size = 17.0;
             ui.label(RichText::new("Vaccination Rates").strong());
-            ui.add(egui::Slider::new(&mut self.params.vac_left, 0.0..=1.0).text("Left half"));
+            ui.add(egui::Slider::new(&mut self.params.vac_left, 0..=100).text("Left half"));
             ui.horizontal(|ui| {
                 ui.checkbox(&mut self.params.right_same, "Right same as left");
                 if self.params.right_same { self.params.vac_right = self.params.vac_left; }
             });
             ui.add_enabled_ui(!self.params.right_same, |ui| {
-                ui.add(egui::Slider::new(&mut self.params.vac_right, 0.0..=1.0).text("Right half"));
+                ui.add(egui::Slider::new(&mut self.params.vac_right, 0..=100).text("Right half"));
             });
             if ui.button("Populate").clicked() { self.populate(); }
             ui.separator();
 
             ui.label(RichText::new("Infection Parameters").strong());
-            ui.add(egui::Slider::new(&mut self.params.inf_rate_nonvac, 0.0..=1.0).text("Infection rate (unvaccinated)"));
-            ui.add(egui::Slider::new(&mut self.params.inf_rate_vac, 0.0..=1.0).text("Infection rate (vaccinated)"));
-            ui.add(egui::Slider::new(&mut self.params.inf_speed, 0.05..=10.0).text("Infection speed ×"));
+            ui.add(egui::Slider::new(&mut self.params.inf_rate_nonvac, 0..=100).text("Infection rate (unvaccinated)"));
+            ui.add(egui::Slider::new(&mut self.params.inf_rate_vac, 0..=100).text("Infection rate (vaccinated)"));
+            ui.add(egui::Slider::new(&mut self.params.inf_speed, 0.5..=10.0).text("Infection speed ×"));
             if ui.button("Clear Infections").clicked() {
                 for c in &mut self.grid { c.infected = false; }
                 self.scheduled.clear();
             }
             ui.separator();
 
-            let (n_inf, n_vax_inf, n_unvax_inf, p_inf, p_vax_pop_inf, p_unvax_pop_inf, p_inf_vax) = self.stats();
+            let (n_inf, n_vax_inf, n_unvax_inf, p_inf, p_vax_pop_inf, p_unvax_pop_inf, _p_inf_vax) = self.stats();
             ui.label(format!("Total population: {}", X_SIZE * Y_SIZE));
             ui.label(format!("Vaccinated: {}", self.total_vaccinated));
             ui.label(format!("Unvaccinated: {}", X_SIZE * Y_SIZE - self.total_vaccinated));
@@ -316,7 +327,7 @@ impl eframe::App for App {
             ui.label(format!("% of population infected: {:.1}%", p_inf));
             ui.label(format!("% of vaccinated infected: {:.1}%", p_vax_pop_inf));
             ui.label(format!("% of unvaccinated infected: {:.1}%", p_unvax_pop_inf));
-            ui.label(format!("% of infections that are vaccinated: {:.1}%", p_inf_vax));
+            //ui.label(format!("% of infections that are vaccinated: {:.1}%", p_inf_vax));
             ui.separator();
             ui.label("Tip: Click any square to seed an infection. Adjust sliders and click Populate to re-randomize vaccination.");
         });
@@ -334,7 +345,7 @@ fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Herd Immunity Simulator")
-            .with_inner_size([1035.0, 550.0])
+            .with_inner_size([1035.0, 600.0])
             .with_min_inner_size([800.0, 400.0]),
         ..Default::default()
     };
