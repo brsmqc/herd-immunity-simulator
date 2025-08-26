@@ -1,22 +1,51 @@
-<!-- index.html -->
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Herd Immunity Simulator</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        #simulation {
+            display: block;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
 </head>
 
-<body style="margin:0; overflow:hidden;">
-    <!-- eframe will render into this canvas -->
-    <canvas id="simulation"></canvas>
-    <script type="module">
-        import init from "./herd_immunity.js";
-        init();
-    </script>
-    <!-- If using Trunk, this single line builds & loads your WASM bundle -->
+<body>
+    <div class="loading">Loading Herd Immunity Simulator...</div>
+    <canvas id="simulation" style="width: 1035px; height: 600px;"></canvas>
     <link data-trunk rel="rust" data-target-name="herd_immunity_simulator" href="Cargo.toml" />
+    <script>
+        // Optional: Add loading feedback
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                const loading = document.querySelector('.loading');
+                if (loading && loading.textContent.includes('Loading')) {
+                    loading.textContent = 'If this takes too long, check the browser console for errors.';
+                }
+            }, 5000);
+        });
+    </script>
+
 </body>
 
 </html>

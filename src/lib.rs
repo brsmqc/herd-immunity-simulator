@@ -3,9 +3,11 @@ use eframe::{
     egui,
     egui::{Color32, RichText},
 };
+use instant::Instant;
 use rand::Rng;
 use std::cmp::{max, min};
-use std::time::{Duration, Instant};
+use std::time::Duration;
+// use std::time::{Duration, Instant};
 // #[cfg(target_arch = "wasm32")]
 
 const X_SIZE: usize = 37;
@@ -350,7 +352,6 @@ mod wasm {
     use eframe::wasm_bindgen::JsCast;
     use eframe::web_sys::HtmlCanvasElement;
     use wasm_bindgen::prelude::*;
-    use wasm_bindgen_futures::wasm_bindgen::prelude::wasm_bindgen;
 
     #[wasm_bindgen(start)]
     pub async fn run_wasm() -> Result<(), JsValue> {
