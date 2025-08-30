@@ -29,16 +29,16 @@ jobs:
       run: CARGO_TARGET_DIR=`pwd`/target cargo install wasm-pack
 
     - name: NPM install (latest)
-      run: cd herd-immunity-simulator-web && npm install npm@latest
+      run: npm install npm@latest
 
     - name: Run Cargo tests
       run: cargo test --workspace
 
     - name: NM (including WASM) Build
-      run: cd herd-immunity-simulator-web && npm run build
+      run: npm run build
 
     - name: eslint
-      run: cd herd-immunity-simulator-web && npm run lint
+      run: npm run lint
 
     # Save wasm build so we an optionally deploy it without rebuilding
     - name: Save wasm dist artivact
