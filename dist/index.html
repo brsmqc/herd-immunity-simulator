@@ -4,34 +4,13 @@
 <head>
     <meta charset="utf-8" />
     <title>Herd Immunity Simulator</title>
-    <style>
-        html,
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
-
-        #simulation {
-            display: block;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 18px;
-            color: #666;
-        }
-    </style>
+    <link rel="stylesheet" href="/style-96167aff93048b6e.css" integrity="sha384-t/cU/KHFDCXj76TjmAiK2rrZH1Xlzfgfc6tGLGNSLIrY/VAZsJs3UMpHX69PkYOc"/>
 <link rel="modulepreload" href="/herd_immunity_simulator-e6f7a9216e2ada2.js" crossorigin="anonymous" integrity="sha384-F6ciXbea8pX8gSv9HkiFjLCt5JuCKv1GGMkG00x+xX/f/kQ6V1R68Xup326dxKef"><link rel="preload" href="/herd_immunity_simulator-e6f7a9216e2ada2_bg.wasm" crossorigin="anonymous" integrity="sha384-6DhLGlsv4zPVZCu7qFcRFkjNSLkBGC6OG0eQbyEMqEw99GqP549QGRF/mayShy58" as="fetch" type="application/wasm"></head>
 
 <body>
-    <div class="loading">Loading Herd Immunity Simulator...</div>
+    <div class="head">
+        <h1>Herd Immunity Simulator</h1>
+    </div>
     <canvas id="simulation" style="width: 1035px; height: 600px;"></canvas>
     
 <script type="module">
@@ -45,18 +24,12 @@ window.wasmBindings = bindings;
 dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 
 </script>
-    <script>
-        // Optional: Add loading feedback
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function () {
-                const loading = document.querySelector('.loading');
-                if (loading && loading.textContent.includes('Loading')) {
-                    loading.textContent = 'If this takes too long, check the browser console for errors.';
-                }
-            }, 5000);
-        });
-    </script>
-
+    <div class="acknowledgements">
+        <p>This simulation was originally made by <a href="http://www.shanekillian.org/apps/herd.html">Shane Killian</a>
+            although it appears the original is no longer online.</p>
+        <p>My code was modified from code by <a href="https://www.software3d.com/Home/Vax/Immunity.php">Robert Webb</a>
+            and rewritten to enhance the distinction between infected and non-infected individuals.</p>
+    </div>
 <script>"use strict";
 
 (function () {
