@@ -1,0 +1,77 @@
+name: WASM Build, Test, Deploy
+
+permissions: {}
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Rust Toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        target: wasm32-unkown-unknown
+
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Install wasm-pack
+      run: CARGO_TARGET_DIR=`pwd`/target cargo install wasm-pack
+
+    - name: NPM install (latest)
+      run: cd herd-immunity-simulator-web && npm install npm@latest
+
+    - name: Run Cargo tests
+      run: cargo test --workspace
+
+    - name: NM (including WASM) Build
+      run: cd herd-immunity-simulator-web && npm run build
+
+    - name: eslint
+      run: cd herd-immunity-simulator-web && npm run lint
+
+    # Save wasm build so we an optionally deploy it without rebuilding
+    - name: Save wasm dist artivact
+      uses: actions/upload-artifact@v4
+      with:
+        name: herd-immunity-simulator-web-dist
+        path: herd-immunity-simulator-web/dist
+        if-no-files-found: error
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pages-alt') }}
+
+    steps:
+    - name: Download wasm dist artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: herd-immunity-simulator-web-dist
+        path: dist-for-deploy
+    
+    - name: Deploy to GitHub Pages
+      uses: crazy-max/ghaction-github-pages@df5cc2bfa78282ded844b354faee141f06b41865
+      with:
+        repo: herd-immunity-simulator
+        target_branch: gh-pages-content
+        build_dir: dist-for-deploy
+        keep_history: false
+        jekyll: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB_DEMO }}
+      
+    
