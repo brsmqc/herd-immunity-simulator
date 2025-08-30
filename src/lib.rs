@@ -312,7 +312,7 @@ impl eframe::App for App {
             ui.label(RichText::new("Infection Parameters").strong());
             ui.add(egui::Slider::new(&mut self.params.inf_rate_nonvac, 0..=100).text("Infection rate (unvaccinated)"));
             ui.add(egui::Slider::new(&mut self.params.inf_rate_vac, 0..=100).text("Infection rate (vaccinated)"));
-            ui.add(egui::Slider::new(&mut self.params.inf_speed, 0.5..=10.0).text("Infection speed ×"));
+            ui.add(egui::Slider::new(&mut self.params.inf_speed, 0.5..=10.0).text("Infection speed (multiplier)"));
             if ui.button("Clear Infections").clicked() {
                 for c in &mut self.grid { c.infected = false; }
                 self.scheduled.clear();
