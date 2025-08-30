@@ -1,3 +1,0 @@
-# Rust flag for making sure that random works correctly on web.
-[target.wasm32-unknown-unknown]
-rustflags = ['--cfg', 'getrandom_backend="wasm_js"']
