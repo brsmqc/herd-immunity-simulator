@@ -7,8 +7,6 @@ use instant::Instant;
 use rand::Rng;
 use std::cmp::{max, min};
 use std::time::Duration;
-// use std::time::{Duration, Instant};
-// #[cfg(target_arch = "wasm32")]
 
 const X_SIZE: usize = 37;
 const Y_SIZE: usize = 33;
@@ -54,7 +52,6 @@ pub struct App {
     params: Params,
     scheduled: Vec<ScheduledInfection>,
     total_vaccinated: usize,
-    // cached colors (to mirror the JS idea of color-coding)
     color_vax: Color32,
     color_unvax: Color32,
     color_infected: Color32,
@@ -74,7 +71,6 @@ impl App {
             scheduled: Vec::new(),
             total_vaccinated: 0,
             color_vax: Color32::from_hex("#8babf1").unwrap(),
-            // Blue options: 8F7DE8 (darker), ADA0EE (lighter)
             color_unvax: Color32::from_hex("#c44601").unwrap(),
             color_infected: Color32::from_hex("#200024").unwrap(),
         };
@@ -86,6 +82,7 @@ impl App {
         y * X_SIZE + x
     }
 
+    // Poplulates the grid with cells that are either vaccinated or unvaccinated
     fn populate(&mut self) {
         self.scheduled.clear();
         let mut rng = rand::rng();
@@ -160,11 +157,13 @@ impl App {
         )
     }
 
+    // Allows for the spread of the infection to happen over time
     fn schedule_infection(&mut self, x: usize, y: usize, delay_ms: u64) {
         let trigger_at = Instant::now() + Duration::from_millis(delay_ms);
         self.scheduled.push(ScheduledInfection { x, y, trigger_at });
     }
 
+    // The actual infection code
     fn try_infect(&mut self, x: usize, y: usize) {
         let idx = Self::idx(x, y);
         if self.grid[idx].infected {
@@ -223,7 +222,7 @@ impl App {
         let border = 1.0;
         let full_size = cell_size + 2.0 * border;
 
-        // Reserve the whole grid rect
+        // Reserve the whole grid space
         let desired_size = egui::vec2(full_size * X_SIZE as f32, full_size * Y_SIZE as f32);
         let (rect, _response) = ui.allocate_exact_size(desired_size, egui::Sense::hover());
 
@@ -331,7 +330,7 @@ impl eframe::App for App {
             ui.label(format!("% of population infected: {:.1}%", p_inf));
             ui.label(format!("% of vaccinated infected: {:.1}%", p_vax_pop_inf));
             ui.label(format!("% of unvaccinated infected: {:.1}%", p_unvax_pop_inf));
-            //ui.label(format!("% of infections that are vaccinated: {:.1}%", p_inf_vax));
+            //ui.label(format!("% of infections that are vaccinated: {:.1}%", p_inf_vax));  //Removed because it confuses students more than it helps
             ui.separator();
             ui.label("Tip: Click any square to seed an infection. Adjust sliders and click Populate to re-randomize vaccination.");
         });

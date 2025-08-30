@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <title>Herd Immunity Simulator</title>
     <link rel="stylesheet" href="/style-96167aff93048b6e.css" integrity="sha384-t/cU/KHFDCXj76TjmAiK2rrZH1Xlzfgfc6tGLGNSLIrY/VAZsJs3UMpHX69PkYOc"/>
-<link rel="modulepreload" href="/herd_immunity_simulator-9fedc4cc6fc73290.js" crossorigin="anonymous" integrity="sha384-F6ciXbea8pX8gSv9HkiFjLCt5JuCKv1GGMkG00x+xX/f/kQ6V1R68Xup326dxKef"><link rel="preload" href="/herd_immunity_simulator-9fedc4cc6fc73290_bg.wasm" crossorigin="anonymous" integrity="sha384-JBpjsOvtYR+9kzzJzCx81rbeF8IUK+sSyKGWNJC3UYLWvIFry215TAc5jXiQk7Zv" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="/herd_immunity_simulator-e909b13af11de221.js" crossorigin="anonymous" integrity="sha384-F6ciXbea8pX8gSv9HkiFjLCt5JuCKv1GGMkG00x+xX/f/kQ6V1R68Xup326dxKef"><link rel="preload" href="/herd_immunity_simulator-e909b13af11de221_bg.wasm" crossorigin="anonymous" integrity="sha384-ghHvg6ikz8Jx94VGBJs2js9bGAVZpASvrk/Q10mzXGTyBgFChih2fGb6Q9ajdCG6" as="fetch" type="application/wasm"></head>
 
 <body>
     <div class="head">
@@ -14,8 +14,8 @@
     <canvas id="simulation" style="width: 1035px; height: 600px;"></canvas>
     
 <script type="module">
-import init, * as bindings from '/herd_immunity_simulator-9fedc4cc6fc73290.js';
-const wasm = await init({ module_or_path: '/herd_immunity_simulator-9fedc4cc6fc73290_bg.wasm' });
+import init, * as bindings from '/herd_immunity_simulator-e909b13af11de221.js';
+const wasm = await init({ module_or_path: '/herd_immunity_simulator-e909b13af11de221_bg.wasm' });
 
 
 window.wasmBindings = bindings;
