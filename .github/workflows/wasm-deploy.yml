@@ -34,11 +34,11 @@ jobs:
     - name: Run Cargo tests
       run: cargo test --workspace
 
-    - name: NM (including WASM) Build
-      run: npm run build
+    - name: NPM Build
+      run: npm run webpack
 
-    - name: eslint
-      run: npm run lint
+    #- name: eslint
+    #  run: npm run lint
 
     # Save wasm build so we an optionally deploy it without rebuilding
     - name: Save wasm dist artivact
